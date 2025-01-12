@@ -62,7 +62,6 @@ class Card():
         four_kind = False
         run_fail = False
         is_flush = True
-        roy_flush = False
         pair_count = 0
         num_count = 1
         for card in sorted_cards:
@@ -81,18 +80,14 @@ class Card():
             else:
                 pair_count += num_count // 2
                 num_count = 1
-        pair_count += num_count // 2
-        if not run_fail and num_of_cards[-2] + 1 == num_of_cards[-1]:
-            card_run = True
         for i in range(len(sorted_cards) - 1):
-            if num_of_cards[0] == 10 and card_run: 
-                roy_flush = True
-                break
             if sorted_cards[i].get_suit() != sorted_cards[i + 1].get_suit():
                 is_flush = False
                 break
-
-        if roy_flush:
+        pair_count += num_count // 2
+        if not run_fail and num_of_cards[-2] + 1 == num_of_cards[-1]:
+            card_run = True
+        if num_of_cards[0] == 10 and card_run and is_flush:
             points = (cls.get_total_card_val() + 300) * cls.markiplier
         elif card_run and is_flush:
             points = (cls.get_total_card_val() + 250) * cls.markiplier
