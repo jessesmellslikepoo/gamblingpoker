@@ -2,7 +2,82 @@ import pygame
 import json
 import random
 
+pygame.init()
+screen = pygame.display.set_mode((1600, 800))
+pygame.display.set_caption("I LOVE ABGs")
+clock = pygame.time.Clock()
+font = pygame.font.Font(pygame.font.get_default_font(), 20)
+BROWN = (75, 70, 60)
+BLACK = (0, 0, 0)
+font = pygame.font.Font("minecraft_font.ttf", 24)
+background_image = pygame.image.load("background.png")
+background_image = pygame.transform.scale(background_image, (1600, 800))
 
+class Game():
+    def __init__(self):
+        self.totalHands = 3
+        self.totalDiscards = 3
+        self.chipBase = 100
+        self.roundCount = 0
+        self.CursorPos = 0
+        self.minChip = 0
+        self.chipsHeld = 0
+
+    def frame_loop(self):
+        self.events()
+        self.changes()
+        self.render()
+
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                raise SystemExit
+            if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_SPACE
+            ):
+                self.next_turn()
+
+    def changes(self):
+        pass
+
+    def render(self):
+        screen.blit(background_image, (0, 0))
+        pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
+        pygame.draw.rect(screen, BROWN, (10, 160, 314, 147))
+        pygame.draw.rect(screen, BROWN, (10, 322, 314, 300))
+        minchiptext_surface = font.render(f"Min Req. Chips: {self.calcMinChips()}", True, BLACK)
+        minchiptext_rect = minchiptext_surface.get_rect(center=(10 + 314 // 2, 12 + 147 // 2))
+        screen.blit(minchiptext_surface, minchiptext_rect)
+        handtext_surface = font.render(f"Hands Remaining: {self.totalHands}", True, BLACK)
+        handtext_rect = handtext_surface.get_rect(center=(10 + 314 // 2, 200))
+        screen.blit(handtext_surface, handtext_rect)
+        disctext_surface = font.render(f"Discards Remaining: {self.totalDiscards}", True, BLACK)
+        disctext_rect = disctext_surface.get_rect(center=(10 + 314 // 2, 260))
+        screen.blit(disctext_surface, disctext_rect)
+
+
+    def next_turn(self):
+        self.totalHands -= 1
+        if self.totalHands == 0: self.finishRound()
+        elif self.getPlayerChips() >= self.calcMinChips(): self.finishRound()
+
+    def finishRound(self):
+        if self.getPlayerChips() >= self.calcMinChips():
+            self.roundCount += 1
+            self.totalHands = 3
+            self.totalDiscards = 3
+            self.calcMinChips()
+        else: pygame.quit()
+
+    def calcMinChips(self):
+        self.minChip = self.chipBase + (self.roundCount * 10)
+        return self.minChip
+    
+    def getPlayerChips(self):
+        return self.chipsHeld
+             
 class Card():
     # 200 points = run 
     # 50 points = 1 pair of cards
@@ -11,12 +86,12 @@ class Card():
 
     deck_of_cards = []
     player_cards = []
-    held_cards = [] 
+    held_cards = []
+    type_of_suits = ["Clubs", "Diamonds", "Hearts", "Spades"]
     markiplier = 1
-    def __init__(self, suit, number, face, img_path):
+    def __init__(self, suit, number, img_path):
         self.suit = suit
         self.number = number
-        self.face = face
         self.image = pygame.image.load(img_path)
         Card.deck_of_cards.append(self)
 
@@ -29,8 +104,20 @@ class Card():
     def get_img(self):
         return self.image
     
-    def get_face(self):
-        return self.face
+    @classmethod
+    def init_deck_of_Cards(cls):
+        for i in range(4):
+            curr_suit = cls.type_of_suits[i]
+            for j in range(2, 14):
+                cls.deck_of_cards.append(Card(curr_suit, j, "card/" + curr_suit + "/" + j + ".png"))
+                
+    @classmethod
+    def get_deck_of_cards(cls):
+        return cls.deck_of_cards
+    
+    @classmethod
+    def get_player_cards(cls):
+        return cls.player_cards
     
     def player_deal(self):
         Card.deck_of_cards.remove(self)
@@ -39,6 +126,7 @@ class Card():
     def remove_player_card(self):
         Card.player_cards.remove(self)
         Card.held_cards.append(self)
+    
 
     @classmethod
     def clear_player(cls):
@@ -134,7 +222,8 @@ class Card():
             if num_of_cards[i] == 13:
                 high_card = True
         if high_card:
-            points (cls.get_total_card_val + 20) * cls.markiplier
+            points = (cls.get_total_card_val + 20) * cls.markiplier
+            return points
 
 
 
@@ -185,3 +274,20 @@ class Dealer():
         random.choice(deck_cards).player_deal()
 
         pass
+
+def main():
+    # Initialize your class that will run everything
+    gameplay = Game()
+
+    while True:
+        screen.fill("purple")
+
+        # Run the primary method in your class that will run every frame
+        gameplay.frame_loop()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
+if __name__ == "__main__":
+    main()
