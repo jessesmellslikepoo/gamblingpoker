@@ -257,3 +257,20 @@ class Dealer():
         # Choose a card from deck of cards, then like call Card class function to actuall deal card.
 
         pass
+
+def main():
+    # Initialize your class that will run everything
+    gameplay = Game()
+
+    while True:
+        screen.fill("purple")
+
+        # Run the primary method in your class that will run every frame
+        gameplay.frame_loop()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+
+if __name__ == "__main__":
+    main()
