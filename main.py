@@ -77,7 +77,7 @@ class Game():
     
     def getPlayerChips(self):
         return self.chipsHeld
-        
+             
 class Card():
     # 200 points = run 
     # 50 points = 1 pair of cards
@@ -86,12 +86,12 @@ class Card():
 
     deck_of_cards = []
     player_cards = []
-    held_cards = [] 
+    held_cards = []
+    type_of_suits = ["Clubs", "Diamonds", "Hearts", "Spades"]
     markiplier = 1
-    def __init__(self, suit, number, face, img_path):
+    def __init__(self, suit, number, img_path):
         self.suit = suit
         self.number = number
-        self.face = face
         self.image = pygame.image.load(img_path)
         Card.deck_of_cards.append(self)
 
@@ -104,8 +104,13 @@ class Card():
     def get_img(self):
         return self.image
     
-    def get_face(self):
-        return self.face
+    @classmethod
+    def init_deck_of_Cards(cls):
+        for i in range(4):
+            curr_suit = cls.type_of_suits[i]
+            for j in range(2, 14):
+                cls.deck_of_cards.append(Card(curr_suit, j, "card/" + curr_suit + "/" + j + ".png"))
+                
     @classmethod
     def get_deck_of_cards(cls):
         return cls.deck_of_cards
