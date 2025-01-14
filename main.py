@@ -106,6 +106,13 @@ class Card():
     
     def get_face(self):
         return self.face
+    @classmethod
+    def get_deck_of_cards(cls):
+        return cls.deck_of_cards
+    
+    @classmethod
+    def get_player_cards(cls):
+        return cls.player_cards
     
     def player_deal(self):
         Card.deck_of_cards.remove(self)
@@ -114,6 +121,7 @@ class Card():
     def remove_player_card(self):
         Card.player_cards.remove(self)
         Card.held_cards.append(self)
+    
 
     @classmethod
     def clear_player(cls):
@@ -209,7 +217,8 @@ class Card():
             if num_of_cards[i] == 13:
                 high_card = True
         if high_card:
-            points (cls.get_total_card_val + 20) * cls.markiplier
+            points = (cls.get_total_card_val + 20) * cls.markiplier
+            return points
 
 
 
