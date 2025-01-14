@@ -177,8 +177,11 @@ class Dealer():
         return self.hands_img
 
     def choseAndDealCard(self):
-        
-        # Plan for this
-        # Choose a card from deck of cards, then like call Card class function to actuall deal card.
+
+        # TEMPORARY CODE, JUST PICKS RANDOM CARD FROM DECK AND DEALS. NEED TO ACTUALLY IMPLEMENT
+
+        deck_cards = Card.get_deck_cards() # Note method to get deck cards not implemented yet
+
+        random.choice(deck_cards).player_deal()
 
         pass
