@@ -102,42 +102,79 @@ class Card():
     # 100 points = 2 pairs of cards
     # 60 points = three of a kind
 
+    """
+    Attributes:
+    deck_of_cards (a list full of Card objects): deck_of_cards when the program is first run is empty, but can easily be initialized by calling the class method
+    init_deck_of_cards, which then initalizes all 52 cards in the deck.
+    player_cards (a list of Card objects): the current player_cards the individual is holding at that moment (which should never exceed 5). 
+    held_cards (a list of Card objects): the current discarded cards that are usable in the next round (which should never exceed 2).
+    TYPE_OF_SUITS (string list): The valid suits that a Card object can use, this is will always be CONSTANT, therefore, it should never change. 
+    markiplier (int var): Funny reference, I know. It's a multiplier that can be changed by the Game class in order to make stakes more intense for points.
+    """
+
     deck_of_cards = []
     player_cards = []
     held_cards = [] # two cards a player holds on to until the next round in case they want to use them.
-    type_of_suits = ["Clubs", "Diamonds", "Hearts", "Spades"] # used to store the valid suits a Card has.
+    TYPE_OF_SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"] # used to store the valid suits a Card has.
     markiplier = 1 # multiplier, in case if it was confusing because of the funny reference.
     def __init__(self, suit, number, img_path): 
         """
         parameters: suit, number, img_path 
         A constructor used to initalize each attribute of a specific Card object.
+        This is a constructor, there is no return, and the init_deck_of_cards is dependent on this constructor.
         """
         self.suit = suit
         self.number = number
         self.image = pygame.image.load(img_path)
 
     def get_suit(self):
+        """
+        An instance getter method for the Card suit. 
+        return: the Card object's suit. 
+        """
         return self.suit
     
     def get_val(self):
+        """
+        An instance getter method for the Card value.
+        return: the Card object's number/value.
+        """
         return self.number
     
     def get_img(self):
+        """
+        An instance getter method for the image.
+        return: the card object's image that uses pygame to load.
+        """
         return self.image
     
     @classmethod
     def init_deck_of_Cards(cls):
         """
-        Class method that initalizes the deck_of_cards, starting with clubs. See type_of_suits for more info.
+        Void class method that initalizes the deck_of_cards, starting with clubs. See class documentation for more info.
+        args: cls (class method, this will not be labelled later because of it being self-explanatory)
+        Follows a specific folder format for each img_path in order for organization. 
+        return: void, which means none.
         """
         for i in range(4):
-            curr_suit = cls.type_of_suits[i]
+            curr_suit = cls.TYPE_OF_SUITS[i]
             for j in range(2, 14):
                 # Follows a specific directory format for the img_path when appended. (cards/the suit/the number.png)
                 cls.deck_of_cards.append(Card(curr_suit, j, "cards/" + curr_suit + "/" + j + ".png"))
+    @classmethod
+    def set_multiplier(cls, num):
+        """
+        args: cls, num
+        Void class method that simply sets the multiplier based on the num argument. 
+        """
+        cls.markiplier = num
      
     @classmethod
     def get_deck_of_cards(cls):
+        """
+        A class getter method for the list deck_of_cards.
+        return: deck_of_cards
+        """
         return cls.deck_of_cards
     
     @classmethod
