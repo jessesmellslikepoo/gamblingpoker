@@ -116,9 +116,9 @@ class Card():
     
     @classmethod
     def init_deck_of_Cards(cls):
-        '''
+        """
         Class method that initalizes the deck_of_cards, starting with clubs. See type_of_suits for more info.
-        '''
+        """
         for i in range(4):
             curr_suit = cls.type_of_suits[i]
             for j in range(2, 14):
@@ -134,34 +134,34 @@ class Card():
         return cls.player_cards
     
     def deal(self):
-        '''
+        """
         used to deal cards to a player from the deck_of_cards, which it is then removed. Instance method.
-        '''
+        """
         Card.deck_of_cards.remove(self)
         Card.player_cards.append(self) 
     
     def discard_player_card(self):
-        '''
+        """
         used to discard unused cards to a player.
         the player will usually hold two Card objects in held_cards
-        '''
+        """
         Card.player_cards.remove(self)
         Card.held_cards.append(self)
     
 
     @classmethod
     def clear_player(cls):
-        '''
+        """
         a bit self explanatory but first adds the cards back to deck_of_cards, and then clears the player_cards list.
-        '''
+        """
         cls.deck_of_cards.extend(cls.player_cards)
         cls.player_cards.clear()
 
     @classmethod
     def get_total_card_val(cls):
-        '''
+        """
         Self explanatory. Adds the total value of the cards in player_cards.
-        '''
+        """
         total_val = 0
         for card in cls.player_cards:
                 # checks each index is a Card object in order to use. This is because in Python, a list doesn't need to contain a specific datatype.
@@ -171,10 +171,10 @@ class Card():
 
     @classmethod
     def get_possible_combination(cls):
-        '''
+        """
         gets every possible combination using a mix of booleans to check for a condition to win. 
         If the dealer has a higher amount of points than the player, then the player loses, and vice versa.
-        '''
+        """
         num_of_cards = []
         suit_of_cards = []
         # checks if each player card is an actual Card object. This is in order to use specific unique Card methods on a list.
