@@ -45,6 +45,11 @@ class Game():
 
     def render(self):
         screen.blit(background_image, (0, 0))
+        self.renderUI()
+        self.renderDealer()
+
+        
+    def renderUI(self):
         pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
         pygame.draw.rect(screen, BROWN, (10, 160, 314, 147))
         pygame.draw.rect(screen, BROWN, (10, 322, 314, 300))
@@ -63,8 +68,13 @@ class Game():
         roundcounttext_surface = font.render(f"Round: {self.roundCount}", True, BLACK)
         disctext_rect = roundcounttext_surface.get_rect(center=(1500, 40))
         screen.blit(roundcounttext_surface, disctext_rect)
-        screen.blit(self.dealer.get_portrait_img(), (0, 0))
 
+    def renderDealer(self):
+        screen.blit(self.dealer.get_portrait_img(), (20, 330))
+        dealertext_surface = font.render(f"{self.dealer.name}", True, BLACK)
+        dealertext_rect = dealertext_surface.get_rect(center=(170, 640))
+        screen.blit(dealertext_surface, dealertext_rect)
+        screen.blit(self.dealer.get_hands_img(), (400, 0))
 
     def next_turn(self):
         self.totalHands -= 1
