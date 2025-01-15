@@ -15,6 +15,7 @@ background_image = pygame.transform.scale(background_image, (1600, 800))
 
 class Game():
     def __init__(self):
+        Card.init_deck_of_Cards()
         self.totalHands = 3
         self.totalDiscards = 3
         self.chipBase = 100
@@ -39,6 +40,11 @@ class Game():
                 and event.key == pygame.K_SPACE
             ):
                 self.next_turn()
+            if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_a
+            ):
+                self.dealer.chose_and_deal_card()
 
     def changes(self):
         pass
@@ -47,8 +53,18 @@ class Game():
         screen.blit(background_image, (0, 0))
         self.renderUI()
         self.renderDealer()
+        self.renderPlayerCards()
 
-        
+    def renderPlayerCards(self):
+        x_offset = 350  # Starting x position
+        y_position = 600  # Fixed y position
+        card_spacing = 165  # Spacing between cards (to leave a small gap)
+
+        for idx, card in enumerate(Card.get_player_cards()):
+            # Scale the card image to 155x250 manually
+            scaled_image = pygame.transform.scale(card.get_img(), (155, 250))
+            screen.blit(scaled_image, (x_offset + idx * card_spacing, y_position))
+
     def renderUI(self):
         pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
         pygame.draw.rect(screen, BROWN, (10, 160, 314, 147))
@@ -396,7 +412,7 @@ class Dealer():
 
         deck_cards = Card.get_deck_of_cards() # Note method to get deck cards not implemented yet
 
-        random.choice(deck_cards).player_deal()
+        random.choice(deck_cards).deal()
 
 
 
