@@ -22,6 +22,7 @@ class Game():
         self.CursorPos = 0
         self.minChip = 0
         self.chipsHeld = 0
+        self.dealer = Dealer()
 
     def frame_loop(self):
         self.events()
@@ -62,7 +63,7 @@ class Game():
         roundcounttext_surface = font.render(f"Round: {self.roundCount}", True, BLACK)
         disctext_rect = roundcounttext_surface.get_rect(center=(1500, 40))
         screen.blit(roundcounttext_surface, disctext_rect)
-        screen.blit(Dealer.getPortraitImg(Dealer), (0, 0))
+        screen.blit(self.dealer.get_portrait_img(), (0, 0))
 
 
     def next_turn(self):
