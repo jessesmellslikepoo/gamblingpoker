@@ -1,10 +1,10 @@
 {
 
-    "name" : "Chicken man",
+    "name" : "Drew Badhand",
 
-    "portrait_img_path" : "assets/chicken_man_portrait",
+    "portrait_img_path" : "assets/dealers/drew_badhand_portrait.png",
 
-    "hands_img_path" : "assets/chicken_man_hands",
+    "hands_img_path" : "assets/dealers/drew_badhand_hands.png",
 
     "liked_cards" : 
     [[       1,          1,        1,    2],

@@ -228,15 +228,36 @@ class Card():
 
 
 class Dealer():
+    """Represents a card dealer in the game.
 
-    dealer_config_paths = ["dealers/test1.json", "dealers/test2.json", "dealers/test3.json"]
+    Attributes:
+        dealer_config_paths (list of str): Paths to available dealer configuration files (class attribute).
+        config_path (str): The path to the chosen dealer's configuration file (instance attribute).
+        name (str): The dealer's name (instance attribute).
+        portrait_img (pygame.Surface): The dealer's portrait image loaded as a Pygame surface obj (instance attribute).
+        hands_img (pygame.Surface): The dealer's hands image loaded as a Pygame surface obj (instance attribute).
+        liked_cards (list of lists of int, str or bool): Cards/card type the dealer likes, each column being a card/card type (instance attribute).
+        disliked_cards (list of lists of int, str or bool): Cards/card type the dealer dislikes, each column being a card/card type (instance attribute).
+    """
+
+    dealer_config_paths = ["dealer_configs/chicken_man.json", "dealer_configs/drew_badhand.json", "dealer_configs/folden_freeman.json"]
 
     def __init__(self, chosen_dealer = False):
+        """Initializes the dealer using its appropriate json config file.
 
-        if chosen_dealer:
+        Args:
+            chosen_dealer (bool or str): If False, a random dealer configuration is chosen.
+                If a string, it is used as the dealer's specific configuration name.
+        
+        Raises:
+            FileNotFoundError: If the dealer's json file does not exist/isn't found.
+            KeyError: If the configuration file is missing required keys/tags (e.g "name").
+        """
+
+        if not chosen_dealer:
             self.config_path = random.choice(Dealer.dealer_config_paths)
         else:
-            self.config_path = "dealers/" + chosen_dealer + ".json"
+            self.config_path = "dealer_configs/" + chosen_dealer + ".json"
         
         # Open Json config to read
         with open(self.config_path, 'r') as file:
@@ -244,36 +265,54 @@ class Dealer():
 
             self.name = dealer_data["name"] # Save name
 
-            self.portrait_img = pygame.image.load(dealer_data["portrait_img_path"]) # Save portrait img as pygame img obj
+            self.portrait_img = pygame.image.load(dealer_data["portrait_img_path"]) # Save portrait img as Pygame surface obj
 
-            self.hands_img = pygame.image.load(dealer_data["hands_img_path"]) # Save hands img as pygame img obj
+            self.hands_img = pygame.image.load(dealer_data["hands_img_path"]) # Save hands img as Pygame surface obj
 
-            self.liked_cards = dealer_data["liked_cards"]
+            self.liked_cards = dealer_data["liked_cards"] # Saves the liked cards as a 2-d matrix/array (each column is liked type of/specific card)
 
-            self.disliked_cards = dealer_data["disliked_cards"]
+            self.disliked_cards = dealer_data["disliked_cards"] # Saves the disliked cards as a 2-d matrix/array (each column is disliked type of/specific card)
 
+    def get_name(self):
+        """Gets/returns the dealer's name.
 
-    # Getter method for name
-    def getName(self):
+        Returns:
+            str: The dealer's name.
+        """
+
         return self.name
     
-    # Getter method for portrait img
-    def getPortraitImg(self):
+    def get_portrait_img(self):
+        """Gets/returns the dealer's portrait image.
+
+        Returns:
+            pygame.Surface: The dealer's portrait image loaded as a Pygame surface obj.
+        """
         return self.portrait_img
     
-    # Getter method for hands img
-    def getHandsImg(self):
+    def get_hands_img(self):
+        """Gets/returns the dealer's hands image.
+
+        Returns:
+            pygame.Surface: The dealer's hands image loaded as a Pygame surface obj.
+        """
         return self.hands_img
 
-    def choseAndDealCard(self):
+    def chose_and_deal_card(self):
+        """Chooses and deals a card.
+
+        Note:
+            This is a placeholder implementation. It CURRENTLY randomly selects a card from the deck
+            and deals it. NEEDED logic of smartly choosing a card needs to be implemented.
+        """
 
         # TEMPORARY CODE, JUST PICKS RANDOM CARD FROM DECK AND DEALS. NEED TO ACTUALLY IMPLEMENT
 
-        deck_cards = Card.get_deck_cards() # Note method to get deck cards not implemented yet
+        deck_cards = Card.get_deck_of_cards() # Note method to get deck cards not implemented yet
 
         random.choice(deck_cards).player_deal()
 
-        pass
+
 
 def main():
     # Initialize your class that will run everything
