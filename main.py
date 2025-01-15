@@ -9,8 +9,8 @@ clock = pygame.time.Clock()
 font = pygame.font.Font(pygame.font.get_default_font(), 20)
 BROWN = (75, 70, 60)
 BLACK = (0, 0, 0)
-font = pygame.font.Font("minecraft_font.ttf", 24)
-background_image = pygame.image.load("background.png")
+font = pygame.font.Font("./minecraft_font.ttf", 24)
+background_image = pygame.image.load('./background.png')
 background_image = pygame.transform.scale(background_image, (1600, 800))
 
 class Game():
@@ -48,14 +48,21 @@ class Game():
         pygame.draw.rect(screen, BROWN, (10, 160, 314, 147))
         pygame.draw.rect(screen, BROWN, (10, 322, 314, 300))
         minchiptext_surface = font.render(f"Min Req. Chips: {self.calcMinChips()}", True, BLACK)
-        minchiptext_rect = minchiptext_surface.get_rect(center=(10 + 314 // 2, 12 + 147 // 2))
+        minchiptext_rect = minchiptext_surface.get_rect(center=(10 + 324 / 2, 120))
         screen.blit(minchiptext_surface, minchiptext_rect)
+        playerchiptext_surface = font.render(f"Player Chips: {self.chipsHeld}", True, BLACK)
+        playerchiptext_rect = playerchiptext_surface.get_rect(center=(10 + 324 / 2, 60))
+        screen.blit(playerchiptext_surface, playerchiptext_rect)
         handtext_surface = font.render(f"Hands Remaining: {self.totalHands}", True, BLACK)
-        handtext_rect = handtext_surface.get_rect(center=(10 + 314 // 2, 200))
+        handtext_rect = handtext_surface.get_rect(center=(10 + 314 / 2, 200))
         screen.blit(handtext_surface, handtext_rect)
         disctext_surface = font.render(f"Discards Remaining: {self.totalDiscards}", True, BLACK)
-        disctext_rect = disctext_surface.get_rect(center=(10 + 314 // 2, 260))
+        disctext_rect = disctext_surface.get_rect(center=(10 + 314 / 2, 260))
         screen.blit(disctext_surface, disctext_rect)
+        roundcounttext_surface = font.render(f"Round: {self.roundCount}", True, BLACK)
+        disctext_rect = roundcounttext_surface.get_rect(center=(1500, 40))
+        screen.blit(roundcounttext_surface, disctext_rect)
+        screen.blit(Dealer.getPortraitImg(Dealer), (0, 0))
 
 
     def next_turn(self):
@@ -86,14 +93,17 @@ class Card():
 
     deck_of_cards = []
     player_cards = []
-    held_cards = []
-    type_of_suits = ["Clubs", "Diamonds", "Hearts", "Spades"]
-    markiplier = 1
-    def __init__(self, suit, number, img_path):
+    held_cards = [] # two cards a player holds on to until the next round in case they want to use them.
+    type_of_suits = ["Clubs", "Diamonds", "Hearts", "Spades"] # used to store the valid suits a Card has.
+    markiplier = 1 # multiplier, in case if it was confusing because of the funny reference.
+    def __init__(self, suit, number, img_path): 
+        """
+        parameters: suit, number, img_path 
+        A constructor used to initalize each attribute of a specific Card object.
+        """
         self.suit = suit
         self.number = number
         self.image = pygame.image.load(img_path)
-        Card.deck_of_cards.append(self)
 
     def get_suit(self):
         return self.suit
@@ -106,11 +116,15 @@ class Card():
     
     @classmethod
     def init_deck_of_Cards(cls):
+        '''
+        Class method that initalizes the deck_of_cards, starting with clubs. See type_of_suits for more info.
+        '''
         for i in range(4):
             curr_suit = cls.type_of_suits[i]
             for j in range(2, 14):
-                cls.deck_of_cards.append(Card(curr_suit, j, "card/" + curr_suit + "/" + j + ".png"))
-                
+                # Follows a specific directory format for the img_path when appended. (cards/the suit/the number.png)
+                cls.deck_of_cards.append(Card(curr_suit, j, "cards/" + curr_suit + "/" + j + ".png"))
+     
     @classmethod
     def get_deck_of_cards(cls):
         return cls.deck_of_cards
@@ -119,33 +133,51 @@ class Card():
     def get_player_cards(cls):
         return cls.player_cards
     
-    def player_deal(self):
+    def deal(self):
+        '''
+        used to deal cards to a player from the deck_of_cards, which it is then removed. Instance method.
+        '''
         Card.deck_of_cards.remove(self)
         Card.player_cards.append(self) 
     
-    def remove_player_card(self):
+    def discard_player_card(self):
+        '''
+        used to discard unused cards to a player.
+        the player will usually hold two Card objects in held_cards
+        '''
         Card.player_cards.remove(self)
         Card.held_cards.append(self)
     
 
     @classmethod
     def clear_player(cls):
+        '''
+        a bit self explanatory but first adds the cards back to deck_of_cards, and then clears the player_cards list.
+        '''
         cls.deck_of_cards.extend(cls.player_cards)
         cls.player_cards.clear()
 
     @classmethod
     def get_total_card_val(cls):
+        '''
+        Self explanatory. Adds the total value of the cards in player_cards.
+        '''
         total_val = 0
         for card in cls.player_cards:
-                if isinstance(card, Card):
+                # checks each index is a Card object in order to use. This is because in Python, a list doesn't need to contain a specific datatype.
+                if isinstance(card, Card): 
                     total_val += card.get_val()
         return total_val
 
     @classmethod
     def get_possible_combination(cls):
+        '''
+        gets every possible combination using a mix of booleans to check for a condition to win. 
+        If the dealer has a higher amount of points than the player, then the player loses, and vice versa.
+        '''
         num_of_cards = []
         suit_of_cards = []
-        # checks if each player card is an actual Card object. This is in order to use specific unique Card methods.
+        # checks if each player card is an actual Card object. This is in order to use specific unique Card methods on a list.
         check_player_cards = [card for card in cls.player_cards if isinstance(card, Card)]
         # sorts cards based on a sorting key, that each Card object should be sorted based on the numeric value, and then on what each suit alphabetically is.
         sorted_cards = sorted(check_player_cards, key = lambda card : (card.get_val(), card.get_suit()))
@@ -155,7 +187,6 @@ class Card():
         run_fail = False
         is_flush = True
         pair_count = 0
-        num_count = 1
         for card in sorted_cards:
             if isinstance(card, Card):
                 num_of_cards.append(card.get_val())
@@ -163,70 +194,66 @@ class Card():
 
         # checking for a run and a pair  
         for i in range(len(num_of_cards) - 1):
-            # run checking...
+            # run calculating...
             if not run_fail and num_of_cards[i] != num_of_cards[i + 1] - 1:
                 run_fail = True
-            # pair checking... 
-            if num_of_cards[i] == num_of_cards[i + 1]:
-                num_count += 1
-            else:
-                pair_count += num_count // 2
-                num_count = 1
-        for i in range(len(sorted_cards) - 1):
-            if sorted_cards[i].get_suit() != sorted_cards[i + 1].get_suit():
+            # flush calculating...
+            if is_flush and sorted_cards[i].get_suit() != sorted_cards[i + 1].get_suit():
                 is_flush = False
-                break
-        pair_count += num_count // 2
-        if not run_fail and num_of_cards[-2] + 1 == num_of_cards[-1]:
+            # pair calculating...
+            num_of_common_cards = num_of_cards.count(num_of_cards[i])
+            if num_of_common_cards == 2:
+                pair_count += 0.5
+            # three/four of a kind calculating...
+            elif num_of_common_cards == 3:
+                three_kind = True
+            elif num_of_common_cards == 4:
+                four_kind = True
+        pair_count += pair_count // 2 # floors pair_count because each card counts for 0.5 of a pair_count
+        if not run_fail:
             card_run = True
+        # condition check for royal flush
         if num_of_cards[0] == 10 and card_run and is_flush:
             points = (cls.get_total_card_val() + 300) * cls.markiplier
+        # condition check for straight flush
         elif card_run and is_flush:
             points = (cls.get_total_card_val() + 250) * cls.markiplier
             return points
+        # condition check for straight
         elif card_run:
             points = (cls.get_total_card_val() + 200) * cls.markiplier
             return points
-
+        
+        # condition check for flush
         if is_flush:
             points = (cls.get_total_card_val() + 50) * cls.markiplier
             return points
         
-
-        # three of a kind/four of a kind
-        for i in range(len(num_of_cards) - 3):
-            if num_of_cards[i] == num_of_cards[i + 1] == num_of_cards[i + 2] == num_of_cards[i + 3]:
-                four_kind = True 
-                break
-            elif num_of_cards[i] == num_of_cards[i + 1] == num_of_cards[i + 2]:
-                three_kind = True
-                break
-
         # checks for pairs, full house, and three of a kind/four of a kind.
-        if pair_count > 0:
-            if three_kind:
-                # full house
-                points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
-                return points
-            # regular pair 
-            points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
-            return points 
         if three_kind:
             points = (cls.get_total_card_val() + 60) * cls.markiplier
             return points
         if four_kind:
             points = (cls.get_total_card_val() + 80) * cls.markiplier
             return points
+        if pair_count > 0:
+            # condition check for full house.
+            if three_kind:
+                points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
+                return points
+            # condition check for regular pairs.  
+            points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
+            return points 
 
         for i in range(len(num_of_cards)):
+            # check for a high card.
             if num_of_cards[i] == 13:
                 high_card = True
+        # conditional for a high card.
         if high_card:
             points = (cls.get_total_card_val + 20) * cls.markiplier
             return points
-
-
-
+        
 class Dealer():
     """Represents a card dealer in the game.
 
