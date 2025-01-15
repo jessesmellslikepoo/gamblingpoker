@@ -104,10 +104,10 @@ class Card():
 
     """
     Attributes:
-    deck_of_cards (a list full of Card objects): deck_of_cards when the program is first run is empty, but can easily be initialized by calling the class method
+    deck_of_cards (any, should be Card): deck_of_cards when the program is first run is empty, but can easily be initialized by calling the class method
     init_deck_of_cards, which then initalizes all 52 cards in the deck.
-    player_cards (a list of Card objects): the current player_cards the individual is holding at that moment (which should never exceed 5). 
-    held_cards (a list of Card objects): the current discarded cards that are usable in the next round (which should never exceed 2).
+    player_cards (any, should be Card): the current player_cards the individual is holding at that moment (which should never exceed 5). 
+    held_cards (any, should be Card): the current discarded cards that are usable in the next round (which should never exceed 2).
     TYPE_OF_SUITS (string list): The valid suits that a Card object can use, this is will always be CONSTANT, therefore, it should never change. 
     markiplier (int var): Funny reference, I know. It's a multiplier that can be changed by the Game class in order to make stakes more intense for points.
     """
@@ -129,6 +129,7 @@ class Card():
 
     def get_suit(self):
         """
+        parameters: self (only represents a Card object, will not be included in documentation for the rest of the parameters to avoid redudancy.)
         An instance getter method for the Card suit. 
         return: the Card object's suit. 
         """
@@ -152,7 +153,7 @@ class Card():
     def init_deck_of_Cards(cls):
         """
         Void class method that initalizes the deck_of_cards, starting with clubs. See class documentation for more info.
-        args: cls (class method, this will not be labelled later because of it being self-explanatory)
+        parameters: cls (only mentioned once since like self, it is redudnant)
         Follows a specific folder format for each img_path in order for organization. 
         return: void, which means none.
         """
@@ -160,11 +161,11 @@ class Card():
             curr_suit = cls.TYPE_OF_SUITS[i]
             for j in range(2, 14):
                 # Follows a specific directory format for the img_path when appended. (cards/the suit/the number.png)
-                cls.deck_of_cards.append(Card(curr_suit, j, "cards/" + curr_suit + "/" + j + ".png"))
+                cls.deck_of_cards.append(Card(curr_suit, j, "assets/cards/" + curr_suit + "/" + str(j) + ".png"))
     @classmethod
     def set_multiplier(cls, num):
         """
-        args: cls, num
+        parameters: num
         Void class method that simply sets the multiplier based on the num argument. 
         """
         cls.markiplier = num
@@ -179,36 +180,44 @@ class Card():
     
     @classmethod
     def get_player_cards(cls):
+        """
+        A class getter method for the list player_cards. 
+        return: player_cards
+        """
         return cls.player_cards
     
     def deal(self):
         """
-        used to deal cards to a player from the deck_of_cards, which it is then removed. Instance method.
+        A instance void method for dealing a card to the player.
         """
         Card.deck_of_cards.remove(self)
         Card.player_cards.append(self) 
     
     def discard_player_card(self):
         """
-        used to discard unused cards to a player.
-        the player will usually hold two Card objects in held_cards
+        A void instance method for discarding a Card object in player_cards. 
+        the player will hold two Card objects
         """
-        Card.player_cards.remove(self)
-        Card.held_cards.append(self)
+        if len(held_cards) > 2: # used as a safety check so this length isn't exceeded.
+            Card.player_cards.remove(self)
+            Card.held_cards.append(self)
     
 
     @classmethod
     def clear_player(cls):
         """
-        a bit self explanatory but first adds the cards back to deck_of_cards, and then clears the player_cards list.
+        A class void method that clears the player.
         """
-        cls.deck_of_cards.extend(cls.player_cards)
+        cls.deck_of_cards.extend(cls.player_cards) # adds the cards back into the deck of cards
         cls.player_cards.clear()
 
     @classmethod
     def get_total_card_val(cls):
         """
-        Self explanatory. Adds the total value of the cards in player_cards.
+        A class int method that returns the total value of every Card in player_cards.
+        returns: total_val 
+        attributes:
+        total_val (int var): resets with every method call and then is added when in loop. 
         """
         total_val = 0
         for card in cls.player_cards:
@@ -220,8 +229,17 @@ class Card():
     @classmethod
     def get_possible_combination(cls):
         """
-        gets every possible combination using a mix of booleans to check for a condition to win. 
-        If the dealer has a higher amount of points than the player, then the player loses, and vice versa.
+        A class int method that goes through every possible combination in order to win the game. This should be updated every time a new card is presented.
+        Attributes:
+        num_of_cards (int list): num_of_cards is the specific value(s) of player_cards. 
+        suit_of_cards (str list): suit_of_cards is the specific amount of strings in player_cards. 
+        check_player_cards (Card list): takes player_cards and makes a list of the cards using list comprehension. 
+        sorted_cards (Card list): takes check_player_cards and makes sorts it based on value, and the suit secondary (e.g 10 clubs, 4 diamonds, 2 spades, etc...) 
+        three_kind (boolean var): a check to ensure a three of a kind took place.
+        four_kind (boolean var): a check to ensure a four of a kind took place.
+        run_fail (boolean var): a check to ensure a run either failed or passed.
+        is_flush (boolean var): a check to ensure a flush has taken place.
+        pair_count (int var): a pair count that uses .count and counts from a double and then floor divides in order to check for a pair. (e.g pair count is 1.5, the floor counts the pair_count now as 1)
         """
         num_of_cards = []
         suit_of_cards = []
@@ -229,7 +247,6 @@ class Card():
         check_player_cards = [card for card in cls.player_cards if isinstance(card, Card)]
         # sorts cards based on a sorting key, that each Card object should be sorted based on the numeric value, and then on what each suit alphabetically is.
         sorted_cards = sorted(check_player_cards, key = lambda card : (card.get_val(), card.get_suit()))
-        card_run = False
         three_kind = False
         four_kind = False
         run_fail = False
@@ -258,17 +275,16 @@ class Card():
             elif num_of_common_cards == 4:
                 four_kind = True
         pair_count += pair_count // 2 # floors pair_count because each card counts for 0.5 of a pair_count
-        if not run_fail:
-            card_run = True
         # condition check for royal flush
-        if num_of_cards[0] == 10 and card_run and is_flush:
+        if num_of_cards[0] == 10 and not run_fail and is_flush:
             points = (cls.get_total_card_val() + 300) * cls.markiplier
+            return points
         # condition check for straight flush
-        elif card_run and is_flush:
+        elif not run_fail and is_flush:
             points = (cls.get_total_card_val() + 250) * cls.markiplier
             return points
         # condition check for straight
-        elif card_run:
+        elif not run_fail:
             points = (cls.get_total_card_val() + 200) * cls.markiplier
             return points
         
@@ -278,12 +294,6 @@ class Card():
             return points
         
         # checks for pairs, full house, and three of a kind/four of a kind.
-        if three_kind:
-            points = (cls.get_total_card_val() + 60) * cls.markiplier
-            return points
-        if four_kind:
-            points = (cls.get_total_card_val() + 80) * cls.markiplier
-            return points
         if pair_count > 0:
             # condition check for full house.
             if three_kind:
@@ -291,16 +301,17 @@ class Card():
                 return points
             # condition check for regular pairs.  
             points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
-            return points 
-
-        for i in range(len(num_of_cards)):
-            # check for a high card.
-            if num_of_cards[i] == 13:
-                high_card = True
-        # conditional for a high card.
-        if high_card:
-            points = (cls.get_total_card_val + 20) * cls.markiplier
             return points
+        if three_kind:
+            points = (cls.get_total_card_val() + 60) * cls.markiplier
+            return points
+        if four_kind:
+            points = (cls.get_total_card_val() + 80) * cls.markiplier
+            return points
+
+        # check for a high card.
+        points = (cls.get_total_card_val + 20) * cls.markiplier
+        return points
         
 class Dealer():
     """Represents a card dealer in the game.
