@@ -4,7 +4,7 @@ import random
 
 pygame.init()
 screen = pygame.display.set_mode((1600, 800))
-pygame.display.set_caption("I LOVE ABGs")
+pygame.display.set_caption("Depressed Dealers")
 clock = pygame.time.Clock()
 font = pygame.font.Font(pygame.font.get_default_font(), 20)
 BROWN = (75, 70, 60)
@@ -14,6 +14,19 @@ background_image = pygame.image.load('./background.png')
 background_image = pygame.transform.scale(background_image, (1600, 800))
 
 class Game():
+    """
+    This is the game class, it contains the base variables for everything that makes the game function. That being:
+    Round Counter: Counts the current round
+    Total Hands: # of turns the player has
+    Total Discards: # of times the player can discard in a turn
+    Chip Base: The base rate of chips used for Min. Calculations
+    Min Chip: Minimum Chips needed init
+    Chips Held: Player Chips held
+
+    Dealer inits the dealer class as an object, this is different every single time.
+    Card Positions hold the co-ordinates of all the cards in the players cards
+    Mouse released is just a safety check to ensure that click cannot be triggered multiple times in one click.
+    """
     def __init__(self):
         Card.init_deck_of_Cards()
         self.totalHands = 3
@@ -28,12 +41,16 @@ class Game():
 
         for _ in range(7):
             self.dealer.chose_and_deal_card()
-
+    """
+    This runs every single frame, it updates the game based on player input first, and then pushes everything to render.
+    """
     def frame_loop(self):
         self.events()
-        self.changes()
         self.render()
-
+    
+    """
+    Player input manager, handles all inputs
+    """
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -56,18 +73,19 @@ class Game():
                 event.type == pygame.MOUSEBUTTONDOWN
             ):
                 self.handleCardClick()
-    
 
-
-    def changes(self):
-        pass
-
+    """
+    Render parent function, for readability
+    """
     def render(self):
         screen.blit(background_image, (0, 0))
         self.renderUI()
         self.renderDealer()
         self.renderPlayerCards()
 
+    """
+    This handles the player cards rendering.
+    """
     def renderPlayerCards(self):
         x_offset = 350
         y_position = 600
@@ -137,6 +155,12 @@ class Game():
     def getPlayerChips(self):
         return self.chipsHeld
 
+    """
+    This method handles the selection process for cards
+    If the player left clicks a card, it is selected
+    If the player right clicks, it is discarded
+    Cards hitboxes are determined here as well
+    """
     def handleCardClick(self):
         mouse_pos = pygame.mouse.get_pos()
 
@@ -166,6 +190,10 @@ class Game():
                     Card.held_cards.remove(card)
                     print(f"Card {card.get_val()} of {card.get_suit()} removed from held")
 
+    """
+    This function enforces that 5 cards must be played in order to win:
+    If that condition is met, it'll take all cards currently selected, check for possible combonations and add the earned chips to the players total
+    """
     def play_selected_cards(self):
         if not Card.held_cards:
             print("No cards selected to play.")
