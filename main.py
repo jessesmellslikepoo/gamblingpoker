@@ -285,23 +285,25 @@ class Card():
         Card.deck_of_cards.remove(self)
         Card.player_cards.append(self) 
     
-    def discard_player_card(self):
+    def discard_held_card(self):
         """
-        A void instance method for discarding a Card object in player_cards. 
+        A void instance method for discarding a Card object in held_cards. 
         the player will hold two Card objects
         """
-        if len(held_cards) > 2: # used as a safety check so this length isn't exceeded.
-            Card.player_cards.remove(self)
-            Card.held_cards.append(self)
-    
+        Card.held_cards.remove(self)
+        Card.deck_of_cards.append(self)
+
+    def discard_player_card(self):
+        Card.held_cards.append(self)
+        Card.player_cards.remove(self)
 
     @classmethod
     def clear_player(cls):
         """
         A class void method that clears the player.
         """
-        cls.deck_of_cards.extend(cls.player_cards) # adds the cards back into the deck of cards
-        cls.player_cards.clear()
+        cls.deck_of_cards.extend(cls.held_cards) # adds the cards back into the deck of cards
+        cls.held_cards.clear()
 
     @classmethod
     def get_total_card_val(cls):
@@ -312,7 +314,7 @@ class Card():
         total_val (int var): resets with every method call and then is added when in loop. 
         """
         total_val = 0
-        for card in cls.player_cards:
+        for card in cls.held_cards:
                 # checks each index is a Card object in order to use. This is because in Python, a list doesn't need to contain a specific datatype.
                 if isinstance(card, Card): 
                     total_val += card.get_val()
@@ -336,9 +338,9 @@ class Card():
         num_of_cards = []
         suit_of_cards = []
         # checks if each player card is an actual Card object. This is in order to use specific unique Card methods on a list.
-        check_player_cards = [card for card in cls.player_cards if isinstance(card, Card)]
+        check_held_cards = [card for card in cls.held_cards if isinstance(card, Card)]
         # sorts cards based on a sorting key, that each Card object should be sorted based on the numeric value, and then on what each suit alphabetically is.
-        sorted_cards = sorted(check_player_cards, key = lambda card : (card.get_val(), card.get_suit()))
+        sorted_cards = sorted(check_held_cards, key = lambda card : (card.get_val(), card.get_suit()))
         three_kind = False
         four_kind = False
         run_fail = False
