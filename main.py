@@ -20,10 +20,14 @@ class Game():
         self.totalDiscards = 3
         self.chipBase = 100
         self.roundCount = 0
-        self.CursorPos = 0
         self.minChip = 0
         self.chipsHeld = 0
         self.dealer = Dealer()
+        self.card_positions = []
+        self.mouse_released = False # Avoids holding down, I'm trying NOT to make a billion chips.
+
+        for _ in range(7):
+            self.dealer.chose_and_deal_card()
 
     def frame_loop(self):
         self.events()
@@ -41,10 +45,12 @@ class Game():
             ):
                 self.next_turn()
             if (
-                event.type == pygame.KEYDOWN
-                and event.key == pygame.K_a
+                event.type == pygame.MOUSEBUTTONDOWN
+                and event.button == 1
             ):
-                self.dealer.chose_and_deal_card()
+                self.handleCardClick()
+    
+
 
     def changes(self):
         pass
@@ -56,14 +62,20 @@ class Game():
         self.renderPlayerCards()
 
     def renderPlayerCards(self):
-        x_offset = 350  # Starting x position
-        y_position = 600  # Fixed y position
-        card_spacing = 165  # Spacing between cards (to leave a small gap)
+        x_offset = 350
+        y_position = 600
+        card_spacing = 165 
 
-        for idx, card in enumerate(Card.get_player_cards()):
-            # Scale the card image to 155x250 manually
+        for index, card in enumerate(Card.get_player_cards()):
+            x_position = x_offset + index * card_spacing
+            self.card_positions.append((card, pygame.Rect(x_position, y_position, 155, 250)))
+            
+            card_rect = pygame.Rect(x_offset + index * card_spacing, y_position, 155, 250)
             scaled_image = pygame.transform.scale(card.get_img(), (155, 250))
-            screen.blit(scaled_image, (x_offset + idx * card_spacing, y_position))
+            screen.blit(scaled_image, (x_position, y_position))
+
+            if card.selected:
+                pygame.draw.rect(screen, (0, 255, 0), card_rect, 5) #Gotta make sure i can unselected it later too lmaoooo
 
     def renderUI(self):
         pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
@@ -111,6 +123,20 @@ class Game():
     
     def getPlayerChips(self):
         return self.chipsHeld
+
+    def handleCardClick(self):
+        if pygame.mouse.get_pressed()[0]:
+            mouse_pos = pygame.mouse.get_pos()
+
+            for idx, card in enumerate(Card.get_player_cards()): #Same idea as the renderer, i love enumerate
+                x_offset = 350 + idx * 165
+                y_position = 600
+                card_rect = pygame.Rect(x_offset, y_position, 155, 250)
+
+                if card_rect.collidepoint(mouse_pos) and not card.selected:
+                    card.selected = True
+                    Card.held_cards.append(card)
+                    print(f"Card {card.get_val()} of {card.get_suit()} added to held")
              
 class Card():
     # 200 points = run 
@@ -133,12 +159,14 @@ class Card():
     held_cards = [] # two cards a player holds on to until the next round in case they want to use them.
     TYPE_OF_SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"] # used to store the valid suits a Card has.
     markiplier = 1 # multiplier, in case if it was confusing because of the funny reference.
+    
     def __init__(self, suit, number, img_path): 
         """
         parameters: suit, number, img_path 
         A constructor used to initalize each attribute of a specific Card object.
         This is a constructor, there is no return, and the init_deck_of_cards is dependent on this constructor.
         """
+        self.selected = False
         self.suit = suit
         self.number = number
         self.image = pygame.image.load(img_path)
