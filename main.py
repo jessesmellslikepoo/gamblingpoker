@@ -568,7 +568,7 @@ class Dealer():
         return self.hands_img
 
     def chose_and_deal_card(self):
-        """Chooses a card by factoring and deals a card
+        """Chooses a card by factoring in liked/disliked cards of the dealer and then deals a card
         """
 
 
@@ -577,8 +577,6 @@ class Dealer():
         while True:
 
             random_num = random.random() # Needs to end up being below 0.1 for card to be chosen
-
-            #print(random_num)
 
             random_card = random.choice(deck_cards)
 
@@ -591,12 +589,8 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                #print("CARD LIKED!!")
-                #print(str(random_card.get_val()) + " of " + random_card.get_suit())
-
                 random_num /= liked_card_type[0] # Random num gets decreased by weight, so higher chance it is below the 0.1 threshold to be chosen.
 
-                #print(random_num)
 
             for disliked_card_type in self.disliked_cards: # Iterates through each column, 
                 if disliked_card_type[2] and disliked_card_type[2] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next disliked card.
@@ -607,12 +601,7 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                #print("CARD DISLIKED!!")
-                #print(str(random_card.get_val()) + " of " + random_card.get_suit())
-
                 random_num *= disliked_card_type[0] # Random num gets increased by weight, so lower chance it is below the 0.1 threshold to be chosen.
-
-                #print(random_num)
 
 
             if random_num < 0.1: # Check if random num of card is below 0.1, if so, deal and end the loop of card searching.
