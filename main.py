@@ -48,7 +48,10 @@ class Game():
                 event.type == pygame.KEYDOWN
                 and event.key == pygame.K_w
             ):
-                Card.discard_player_card()
+                if self.totalDiscards != 0:
+                     Card.held_cards[0].discard_player_card()
+                     self.totalDiscards -= 1
+                     self.dealer.chose_and_deal_card()
             if (
                 event.type == pygame.MOUSEBUTTONDOWN
             ):
