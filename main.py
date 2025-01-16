@@ -254,8 +254,8 @@ class Card():
     Attributes:
     deck_of_cards (any, should be Card): deck_of_cards when the program is first run is empty, but can easily be initialized by calling the class method
     init_deck_of_cards, which then initalizes all 52 cards in the deck.
-    player_cards (any, should be Card): the current player_cards the individual is holding at that moment (which should never exceed 5). 
-    held_cards (any, should be Card): the current discarded cards that are usable in the next round (which should never exceed 2).
+    player_cards (any, should be Card): the current player_cards the individual is holding BEFORE the game starts. (when the game starts, there should be two discarded cards) 
+    held_cards (any, should be Card): the current cards that are being played after chosen by the 
     TYPE_OF_SUITS (string list): The valid suits that a Card object can use, this is will always be CONSTANT, therefore, it should never change. 
     markiplier (int var): Funny reference, I know. It's a multiplier that can be changed by the Game class in order to make stakes more intense for points.
     """
@@ -353,18 +353,22 @@ class Card():
     
     def discard_held_card(self):
         """
-        A void instance method for discarding a Card object in held_cards. 
-        the player will hold two Card objects
+        A void instance method for discarding a Card object in held_cards. held_cards -> deck_of_cards
         """
         Card.held_cards.remove(self)
         Card.deck_of_cards.append(self)
 
     def move_to_held_cards(self):
-        
+        """
+        A void instance method for moving a Card object from player_cards -> held_cards
+        """
         Card.player_cards.remove(self)
         Card.held_cards.append(self)
 
     def move_to_player_cards(self):
+        """
+        A void instance method for moving a Card object from held_cards -> player_cards
+        """
         Card.held_cards.remove(self)
         Card.player_cards.append(self)
 
@@ -379,7 +383,7 @@ class Card():
     @classmethod
     def get_total_card_val(cls):
         """
-        A class int method that returns the total value of every Card in player_cards.
+        A class int method that returns the total value of every Card in held_cards.
         returns: total_val 
         attributes:
         total_val (int var): resets with every method call and then is added when in loop. 
@@ -396,9 +400,9 @@ class Card():
         """
         A class int method that goes through every possible combination in order to win the game. This should be updated every time a new card is presented.
         Attributes:
-        num_of_cards (int list): num_of_cards is the specific value(s) of player_cards. 
-        suit_of_cards (str list): suit_of_cards is the specific amount of strings in player_cards. 
-        check_player_cards (Card list): takes player_cards and makes a list of the cards using list comprehension. 
+        num_of_cards (int list): num_of_cards is the specific value(s) of held_cards. 
+        suit_of_cards (str list): suit_of_cards is the specific amount of strings in held_cards. 
+        check_held_cards (Card list): takes held_cards and makes a list of the cards using list comprehension. 
         sorted_cards (Card list): takes check_player_cards and makes sorts it based on value, and the suit secondary (e.g 10 clubs, 4 diamonds, 2 spades, etc...) 
         three_kind (boolean var): a check to ensure a three of a kind took place.
         four_kind (boolean var): a check to ensure a four of a kind took place.
@@ -444,8 +448,6 @@ class Card():
             elif num_of_common_cards == 4:
                 four_kind = True
         pair_count += pair_count // 2 # floors pair_count because each card counts for 0.5 of a pair_count
-        print(is_flush)
-        print(run_fail)
         # condition check for royal flush
         if num_of_cards[0] == 10 and not run_fail and is_flush:
             points = (cls.get_total_card_val() + 300) * cls.markiplier
@@ -456,28 +458,25 @@ class Card():
             return points
         # condition check for four of a kind
         if four_kind:
-            points = (cls.get_total_card_val() + 80) * cls.markiplier
+            points = (cls.get_total_card_val() + 225) * cls.markiplier
             return points
         # condition check for full house.
-        if three_kind:
-            points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
-            return points
+        if pair_count > 0:
+            if three_kind:
+                points = cls.get_total_card_val() + 200 * pair_count * cls.markiplier
+                return points
         # condition check for flush
         if is_flush:
-            points = (cls.get_total_card_val() + 50) * cls.markiplier
+            points = (cls.get_total_card_val() + 150) * cls.markiplier
             return points
         # condition check for straight
         elif not run_fail:
-            points = (cls.get_total_card_val() + 200) * cls.markiplier
+            points = (cls.get_total_card_val() + 125) * cls.markiplier
             return points
-        
-        # condition check for flush
-        if is_flush:
-            points = (cls.get_total_card_val() + 50) * cls.markiplier
-            return points
+            
         # condition check for three of a kind
         if three_kind:
-            points = (cls.get_total_card_val() + 60) * cls.markiplier
+            points = (cls.get_total_card_val() + 100) * cls.markiplier
             return points
         # condition for one pair/two pairs of cards
         if pair_count > 0:
@@ -485,7 +484,6 @@ class Card():
             return points
         # finally, check for the highest card for points.
         points = (cls.get_total_card_val() + 20) * cls.markiplier
-
         return points
 
         
