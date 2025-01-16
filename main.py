@@ -511,18 +511,46 @@ class Dealer():
         return self.hands_img
 
     def chose_and_deal_card(self):
-        """Chooses and deals a card.
-
-        Note:
-            This is a placeholder implementation. It CURRENTLY randomly selects a card from the deck
-            and deals it. NEEDED logic of smartly choosing a card needs to be implemented.
+        """Chooses a card by factoring and deals a card
         """
 
-        # TEMPORARY CODE, JUST PICKS RANDOM CARD FROM DECK AND DEALS. NEED TO ACTUALLY IMPLEMENT
 
         deck_cards = Card.get_deck_of_cards() # Note method to get deck cards not implemented yet
 
-        random.choice(deck_cards).deal()
+        while True:
+
+            random_num = random.random() # Needs to end up being below 0.1 for card to be chosen
+
+            random_card = random.choice(deck_cards)
+
+            for liked_card_type in self.liked_cards: # Iterates through each column, 
+                if liked_card_type[0] and liked_card_type[0] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next liked card.
+                    continue
+
+                if liked_card_type[1] and liked_card_type[1] != random_card.get_val(): # Check if there is a val defined, and if there is, check if equal to card's val. If not, then not matching, so continue to check next liked card.
+                    continue
+
+                # To get here, card must be liked, so now apply weight of liked card to random num of current card.
+
+                random_num /= liked_card_type[2] # Random num gets decreased by weight, so higher chance it is below the 0.1 threshold to be chosen.
+
+            for disliked_card_type in self.disliked_cards: # Iterates through each column, 
+                if disliked_card_type[0] and disliked_card_type[0] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next disliked card.
+                    continue
+
+                if disliked_card_type[1] and disliked_card_type[1] != random_card.get_val(): # Check if there is a val defined, and if there is, check if equal to card's val. If not, then not matching, so continue to check next disliked card.
+                    continue
+
+                # To get here, card must be liked, so now apply weight of liked card to random num of current card.
+
+                random_num *= disliked_card_type[2] # Random num gets increased by weight, so lower chance it is below the 0.1 threshold to be chosen.
+
+
+            if random_num < 0.1: # Check if random num of card is below 0.1, if so, deal and end the loop of card searching.
+
+                random_card.deal()
+
+                break
 
 
 
