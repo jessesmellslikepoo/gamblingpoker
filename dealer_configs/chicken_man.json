@@ -12,6 +12,8 @@
 
      "disliked_cards" :
     [[2, false, "Hearts"],
-     [3, 13,  false]]
+     [3, 13,  false]],
+
+     "multiplier" : 0.75
 
 }

@@ -134,7 +134,6 @@ class Game():
         screen.blit(self.dealer.get_hands_img(), (400, 0))
 
     def next_turn(self):
-        self.totalHands -= 1
         self.play_selected_cards()
         if self.totalHands == 0: self.finishRound()
         elif self.getPlayerChips() >= self.calcMinChips(): self.finishRound()
@@ -204,10 +203,8 @@ class Game():
             print("Hand will not play! Must play 5 cards!")
         else:
             # Move selected cards to player_cards for combination calculation
-            # Card.player_cards.extend(Card.held_cards)
-            # Card.held_cards.clear()
 
-
+            self.totalHands -= 1
 
             # Calculate the combination and points
             points = Card.get_possible_combination()
@@ -465,7 +462,7 @@ class Card():
             return points
         # finally, check for the highest card for points.
         points = (cls.get_total_card_val() + 20) * cls.markiplier
-        print(pair_count)
+
         return points
 
         
@@ -516,6 +513,11 @@ class Dealer():
 
             self.disliked_cards = dealer_data["disliked_cards"] # Saves the disliked cards as a 2-d matrix/array (each column is disliked type of/specific card)
 
+            self.multiplier = dealer_data["multiplier"]
+
+            Card.set_multiplier(self.multiplier)
+
+
     def get_name(self):
         """Gets/returns the dealer's name.
 
@@ -557,7 +559,7 @@ class Dealer():
             random_card = random.choice(deck_cards)
 
             for liked_card_type in self.liked_cards: # Iterates through each column, 
-                if liked_card_type[0] and liked_card_type[0] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next liked card.
+                if liked_card_type[2] and liked_card_type[2] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next liked card.
                     continue
 
                 if liked_card_type[1] and liked_card_type[1] != random_card.get_val(): # Check if there is a val defined, and if there is, check if equal to card's val. If not, then not matching, so continue to check next liked card.
@@ -565,10 +567,15 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                random_num /= liked_card_type[2] # Random num gets decreased by weight, so higher chance it is below the 0.1 threshold to be chosen.
+                print("CARD LIKED!!")
+                print(str(random_card.get_val()) + " of " + random_card.get_suit())
+
+                random_num /= liked_card_type[0] # Random num gets decreased by weight, so higher chance it is below the 0.1 threshold to be chosen.
+
+                print(random_num)
 
             for disliked_card_type in self.disliked_cards: # Iterates through each column, 
-                if disliked_card_type[0] and disliked_card_type[0] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next disliked card.
+                if disliked_card_type[2] and disliked_card_type[2] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next disliked card.
                     continue
 
                 if disliked_card_type[1] and disliked_card_type[1] != random_card.get_val(): # Check if there is a val defined, and if there is, check if equal to card's val. If not, then not matching, so continue to check next disliked card.
@@ -576,7 +583,12 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                random_num *= disliked_card_type[2] # Random num gets increased by weight, so lower chance it is below the 0.1 threshold to be chosen.
+                print("CARD DISLIKED!!")
+                print(str(random_card.get_val()) + " of " + random_card.get_suit())
+
+                random_num *= disliked_card_type[0] # Random num gets increased by weight, so lower chance it is below the 0.1 threshold to be chosen.
+
+                print(random_num)
 
 
             if random_num < 0.1: # Check if random num of card is below 0.1, if so, deal and end the loop of card searching.

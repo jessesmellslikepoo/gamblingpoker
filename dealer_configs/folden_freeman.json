@@ -11,6 +11,8 @@
 
      "disliked_cards" :
      [[2, 5, false],
-     [2, 13,  false]]
+     [2, 10,  false]],
+
+     "multiplier" : 1
 
 }

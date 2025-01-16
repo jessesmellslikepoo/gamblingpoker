@@ -7,10 +7,12 @@
     "hands_img_path" : "assets/dealers/drew_badhand_hands.png",
 
     "liked_cards" : 
-    [[4, false, "Spades"],
+    [[2, false, "Spades"],
      [3, 2,  false]],
 
      "disliked_cards" :
-     [[3, 13,  "Clubs"]]
+     [[3, 13,  "Clubs"]],
+
+     "multiplier" : 1.25
 
 }
