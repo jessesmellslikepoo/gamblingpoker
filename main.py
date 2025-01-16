@@ -327,6 +327,19 @@ class Card():
         elif not run_fail and is_flush:
             points = (cls.get_total_card_val() + 250) * cls.markiplier
             return points
+        # condition check for four of a kind
+        if four_kind:
+            points = (cls.get_total_card_val() + 80) * cls.markiplier
+            return points
+        if pair_count > 0:
+        # condition check for full house.
+        if three_kind:
+            points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
+            return points
+        # condition check for flush
+        if is_flush:
+            points = (cls.get_total_card_val() + 50) * cls.markiplier
+            return points
         # condition check for straight
         elif not run_fail:
             points = (cls.get_total_card_val() + 200) * cls.markiplier
@@ -336,26 +349,17 @@ class Card():
         if is_flush:
             points = (cls.get_total_card_val() + 50) * cls.markiplier
             return points
-        
-        # checks for pairs, full house, and three of a kind/four of a kind.
-        if pair_count > 0:
-            # condition check for full house.
-            if three_kind:
-                points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
-                return points
-            # condition check for regular pairs.  
-            points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
-            return points
+        # condition check for three of a kind
         if three_kind:
             points = (cls.get_total_card_val() + 60) * cls.markiplier
             return points
-        if four_kind:
-            points = (cls.get_total_card_val() + 80) * cls.markiplier
-            return points
+        # condition for one pair/two pairs of cards
+        if pair_count > 0:
+            points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
+        # finally, check for the highest card for points.
+        points = (cls.get_total_card_val() + 20) * cls.markiplier
 
-        # check for a high card.
-        points = (cls.get_total_card_val + 20) * cls.markiplier
-        return points
+        
         
 class Dealer():
     """Represents a card dealer in the game.
