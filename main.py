@@ -202,11 +202,16 @@ class Game():
             print("Hand will not play! Must play 5 cards!")
         else:
             # Move selected cards to player_cards for combination calculation
-            Card.player_cards.extend(Card.held_cards)
-            Card.held_cards.clear()
+            # Card.player_cards.extend(Card.held_cards)
+            # Card.held_cards.clear()
+
+
 
             # Calculate the combination and points
-            points = Card.get_possible_combination()
+            points = round(Card.get_possible_combination())
+
+            for card in Card.held_cards:
+                card.discard_held_card()
 
             # Clear player cards after playing
             Card.clear_player()
@@ -409,7 +414,6 @@ class Card():
         if four_kind:
             points = (cls.get_total_card_val() + 80) * cls.markiplier
             return points
-        if pair_count > 0:
         # condition check for full house.
         if three_kind:
             points = cls.get_total_card_val() + 225 * pair_count * cls.markiplier
