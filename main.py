@@ -66,7 +66,7 @@ class Game():
                 and event.key == pygame.K_w
             ):
                 if self.totalDiscards != 0:
-                     Card.held_cards[0].discard_player_card()
+                     Card.held_cards[0].discard_held_card()
                      self.totalDiscards -= 1
                      self.dealer.chose_and_deal_card()
             if (
@@ -89,9 +89,11 @@ class Game():
     def renderPlayerCards(self):
         x_offset = 350
         y_position = 600
-        card_spacing = 165 
+        card_spacing = 165
 
-        for index, card in enumerate(Card.get_player_cards()):
+        
+        for index, card in enumerate(Card.get_held_cards() + Card.get_player_cards()):
+
             x_position = x_offset + index * card_spacing
             self.card_positions.append((card, pygame.Rect(x_position, y_position, 155, 250)))
             
@@ -99,8 +101,8 @@ class Game():
             scaled_image = pygame.transform.scale(card.get_img(), (155, 250))
             screen.blit(scaled_image, (x_position, y_position))
 
-            if card.selected:
-                pygame.draw.rect(screen, (0, 255, 0), card_rect, 5) #Gotta make sure i can unselected it later too lmaoooo
+            if card in Card.get_held_cards():
+                pygame.draw.rect(screen, (0, 255, 0), card_rect, 5)
             else:   
                 pygame.draw.rect(screen, (0, 0, 0), card_rect, 5) 
 
@@ -165,29 +167,29 @@ class Game():
         mouse_pos = pygame.mouse.get_pos()
 
         if pygame.mouse.get_pressed()[0]:  # Left-click (button 1)
-            for idx, card in enumerate(Card.get_player_cards()):
+            for idx, card in enumerate(Card.get_held_cards() + Card.get_player_cards()):
                 x_offset = 350 + idx * 165
                 y_position = 600
                 card_rect = pygame.Rect(x_offset, y_position, 155, 250)
 
                 # Col check!
-                if card_rect.collidepoint(mouse_pos) and not card.selected:
+                if card_rect.collidepoint(mouse_pos) and not card in Card.get_held_cards():
                     if len(Card.held_cards) < 5:
-                        card.selected = True
-                        Card.held_cards.append(card)
+                        #card.selected = True
+                        card.move_to_held_cards()
                         print(f"Card {card.get_val()} of {card.get_suit()} added to held")
                     else:
                         print("You can only select up to 5 cards.")
         elif pygame.mouse.get_pressed()[2]:  # Right-click (button 3, not 2...)
-            for idx, card in enumerate(Card.get_player_cards()):
+            for idx, card in enumerate(Card.get_held_cards() + Card.get_player_cards()):
                 x_offset = 350 + idx * 165
                 y_position = 600
                 card_rect = pygame.Rect(x_offset, y_position, 155, 250)
 
                 # Allow deselection regardless of the selection count
-                if card_rect.collidepoint(mouse_pos) and card.selected:
-                    card.selected = False
-                    Card.held_cards.remove(card)
+                if card_rect.collidepoint(mouse_pos) and card in Card.get_held_cards():
+                    #card.selected = False
+                    card.move_to_player_cards()
                     print(f"Card {card.get_val()} of {card.get_suit()} removed from held")
 
     """
@@ -208,13 +210,18 @@ class Game():
 
 
             # Calculate the combination and points
-            points = round(Card.get_possible_combination())
+            points = Card.get_possible_combination()
 
-            for card in Card.held_cards:
+            print(points)
+
+            points = round(points)
+
+            for card in Card.get_held_cards()[:]:
                 card.discard_held_card()
+                self.dealer.chose_and_deal_card()
 
             # Clear player cards after playing
-            Card.clear_player()
+            # Card.clear_player()
 
             print(f"Played selected cards! Combination points: {points}")
             self.chipsHeld += points
@@ -311,6 +318,14 @@ class Card():
         """
         return cls.player_cards
     
+    @classmethod
+    def get_held_cards(cls):
+        """
+        A class getter method for the list held_cards. 
+        return: held_cards
+        """
+        return cls.held_cards
+    
     def deal(self):
         """
         A instance void method for dealing a card to the player.
@@ -326,9 +341,14 @@ class Card():
         Card.held_cards.remove(self)
         Card.deck_of_cards.append(self)
 
-    def discard_player_card(self):
-        Card.held_cards.append(self)
+    def move_to_held_cards(self):
+        
         Card.player_cards.remove(self)
+        Card.held_cards.append(self)
+
+    def move_to_player_cards(self):
+        Card.held_cards.remove(self)
+        Card.player_cards.append(self)
 
     @classmethod
     def clear_player(cls):
@@ -368,6 +388,7 @@ class Card():
         is_flush (boolean var): a check to ensure a flush has taken place.
         pair_count (int var): a pair count that uses .count and counts from a double and then floor divides in order to check for a pair. (e.g pair count is 1.5, the floor counts the pair_count now as 1)
         """
+
         num_of_cards = []
         suit_of_cards = []
         # checks if each player card is an actual Card object. This is in order to use specific unique Card methods on a list.
@@ -383,6 +404,9 @@ class Card():
             if isinstance(card, Card):
                 num_of_cards.append(card.get_val())
                 suit_of_cards.append(card.get_suit())
+
+        print(num_of_cards)
+        print(suit_of_cards)
 
         # checking for a run and a pair  
         for i in range(len(num_of_cards) - 1):
@@ -438,8 +462,11 @@ class Card():
         # condition for one pair/two pairs of cards
         if pair_count > 0:
             points = cls.get_total_card_val() + 50 * pair_count * cls.markiplier
+            return points
         # finally, check for the highest card for points.
         points = (cls.get_total_card_val() + 20) * cls.markiplier
+        print(pair_count)
+        return points
 
         
         
@@ -524,6 +551,8 @@ class Dealer():
         while True:
 
             random_num = random.random() # Needs to end up being below 0.1 for card to be chosen
+
+            print(random_num)
 
             random_card = random.choice(deck_cards)
 
