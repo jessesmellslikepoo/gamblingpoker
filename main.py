@@ -211,14 +211,12 @@ class Game():
 
             print(points)
 
-            points = round(points)
+            points = round(points) # Round points, as may be decimal due to multiplier
 
-            for card in Card.get_held_cards()[:]:
-                card.discard_held_card()
+            Card.clear_player() # Clear player's 5 held cards
+
+            for _ in range(5): # Deal the player a new 5 cards
                 self.dealer.chose_and_deal_card()
-
-            # Clear player cards after playing
-            # Card.clear_player()
 
             print(f"Played selected cards! Combination points: {points}")
             self.chipsHeld += points
@@ -423,6 +421,8 @@ class Card():
             elif num_of_common_cards == 4:
                 four_kind = True
         pair_count += pair_count // 2 # floors pair_count because each card counts for 0.5 of a pair_count
+        print(is_flush)
+        print(run_fail)
         # condition check for royal flush
         if num_of_cards[0] == 10 and not run_fail and is_flush:
             points = (cls.get_total_card_val() + 300) * cls.markiplier
@@ -478,6 +478,7 @@ class Dealer():
         hands_img (pygame.Surface): The dealer's hands image loaded as a Pygame surface obj (instance attribute).
         liked_cards (list of lists of int, str or bool): Cards/card type the dealer likes, each column being a card/card type (instance attribute).
         disliked_cards (list of lists of int, str or bool): Cards/card type the dealer dislikes, each column being a card/card type (instance attribute).
+        multiplier (int): Point multiplier that universally multiplies the players points.
     """
 
     dealer_config_paths = ["dealer_configs/chicken_man.json", "dealer_configs/drew_badhand.json", "dealer_configs/folden_freeman.json"]
@@ -513,7 +514,7 @@ class Dealer():
 
             self.disliked_cards = dealer_data["disliked_cards"] # Saves the disliked cards as a 2-d matrix/array (each column is disliked type of/specific card)
 
-            self.multiplier = dealer_data["multiplier"]
+            self.multiplier = dealer_data["multiplier"] # Saves the point multiplier as an int
 
             Card.set_multiplier(self.multiplier)
 
@@ -554,7 +555,7 @@ class Dealer():
 
             random_num = random.random() # Needs to end up being below 0.1 for card to be chosen
 
-            print(random_num)
+            #print(random_num)
 
             random_card = random.choice(deck_cards)
 
@@ -567,12 +568,12 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                print("CARD LIKED!!")
-                print(str(random_card.get_val()) + " of " + random_card.get_suit())
+                #print("CARD LIKED!!")
+                #print(str(random_card.get_val()) + " of " + random_card.get_suit())
 
                 random_num /= liked_card_type[0] # Random num gets decreased by weight, so higher chance it is below the 0.1 threshold to be chosen.
 
-                print(random_num)
+                #print(random_num)
 
             for disliked_card_type in self.disliked_cards: # Iterates through each column, 
                 if disliked_card_type[2] and disliked_card_type[2] != random_card.get_suit(): # Check if there is a suit defined, and if there is, check if equal to card's suit. If not, then not matching, so continue to check next disliked card.
@@ -583,12 +584,12 @@ class Dealer():
 
                 # To get here, card must be liked, so now apply weight of liked card to random num of current card.
 
-                print("CARD DISLIKED!!")
-                print(str(random_card.get_val()) + " of " + random_card.get_suit())
+                #print("CARD DISLIKED!!")
+                #print(str(random_card.get_val()) + " of " + random_card.get_suit())
 
                 random_num *= disliked_card_type[0] # Random num gets increased by weight, so lower chance it is below the 0.1 threshold to be chosen.
 
-                print(random_num)
+                #print(random_num)
 
 
             if random_num < 0.1: # Check if random num of card is below 0.1, if so, deal and end the loop of card searching.
