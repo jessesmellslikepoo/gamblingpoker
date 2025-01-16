@@ -37,7 +37,7 @@ class Game():
         self.chipsHeld = 0
         self.dealer = Dealer()
         self.card_positions = []
-        self.mouse_released = False # Avoids holding down, I'm trying NOT to make a billion chips.
+        self.mouse_released = False
 
         for _ in range(7):
             self.dealer.chose_and_deal_card()
@@ -75,7 +75,7 @@ class Game():
                 self.handleCardClick()
 
     """
-    Render parent function, for readability
+    Render parent function, for readability, calls upon all child functions
     """
     def render(self):
         screen.blit(background_image, (0, 0))
@@ -85,6 +85,9 @@ class Game():
 
     """
     This handles the player cards rendering.
+    Any cards in hand are automatically sorted to the left of the screen
+    And non selected cards are pushed to the right
+    Scaled up 5x for readability
     """
     def renderPlayerCards(self):
         x_offset = 350
@@ -105,7 +108,9 @@ class Game():
                 pygame.draw.rect(screen, (0, 255, 0), card_rect, 5)
             else:   
                 pygame.draw.rect(screen, (0, 0, 0), card_rect, 5) 
-
+    """
+    Big function of rendering, this controls any text blocks, variable text, and the text boxes
+    """
     def renderUI(self):
         pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
         pygame.draw.rect(screen, BROWN, (10, 160, 314, 147))
@@ -126,6 +131,9 @@ class Game():
         disctext_rect = roundcounttext_surface.get_rect(center=(1500, 40))
         screen.blit(roundcounttext_surface, disctext_rect)
 
+    """
+    This function interfaces with the dealer class, it receives the proper image pathing and draws it to the screen, self contained
+    """
     def renderDealer(self):
         screen.blit(self.dealer.get_portrait_img(), (20, 330))
         dealertext_surface = font.render(f"{self.dealer.name}", True, BLACK)
@@ -133,11 +141,18 @@ class Game():
         screen.blit(dealertext_surface, dealertext_rect)
         screen.blit(self.dealer.get_hands_img(), (400, 0))
 
+    """
+    Advances the turn upon the Space Bar key being clicked
+    """
     def next_turn(self):
         self.play_selected_cards()
         if self.totalHands == 0: self.finishRound()
-        elif self.getPlayerChips() >= self.calcMinChips(): self.finishRound()
+        # Commenting out as to allow player to build up chips over rounds, makes game easier for progression
+        # elif self.getPlayerChips() >= self.calcMinChips(): self.finishRound()
 
+    """
+    This function runs whenever the player reachs the minimum number of chips needed to progress
+    """
     def finishRound(self):
         if self.getPlayerChips() >= self.calcMinChips():
             self.roundCount += 1
@@ -146,13 +161,21 @@ class Game():
             self.calcMinChips()
         else: pygame.quit()
 
-    def calcMinChips(self): # I made this better.
-        base_growth_rate = 1.5  # base
-        pfactor = max(1, self.roundCount / 2)  # round exp.
+    """
+    This function calculates the minimum # of chips that the player must reach in order to "win" a round
+    The base growth rate is the base multiplier, this is static
+    pfactor is the variable multiplier, this is used to scale the game up every round in a slope
+    """
+    def calcMinChips(self):
+        base_growth_rate = 1.5
+        pfactor = max(1, self.roundCount / 2)
 
         self.minChip = int(self.chipBase * (base_growth_rate ** self.roundCount) * pfactor)
         return self.minChip
-    
+
+    """
+    Returns Player Chips
+    """
     def getPlayerChips(self):
         return self.chipsHeld
 
