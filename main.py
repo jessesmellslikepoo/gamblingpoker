@@ -45,8 +45,12 @@ class Game():
             ):
                 self.next_turn()
             if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_w
+            ):
+                Card.discard_player_card()
+            if (
                 event.type == pygame.MOUSEBUTTONDOWN
-                and event.button == 1
             ):
                 self.handleCardClick()
     
@@ -76,6 +80,8 @@ class Game():
 
             if card.selected:
                 pygame.draw.rect(screen, (0, 255, 0), card_rect, 5) #Gotta make sure i can unselected it later too lmaoooo
+            else:   
+                pygame.draw.rect(screen, (0, 0, 0), card_rect, 5) 
 
     def renderUI(self):
         pygame.draw.rect(screen, BROWN, (10, 12, 314, 147))
@@ -106,6 +112,7 @@ class Game():
 
     def next_turn(self):
         self.totalHands -= 1
+        self.play_selected_cards()
         if self.totalHands == 0: self.finishRound()
         elif self.getPlayerChips() >= self.calcMinChips(): self.finishRound()
 
@@ -117,26 +124,64 @@ class Game():
             self.calcMinChips()
         else: pygame.quit()
 
-    def calcMinChips(self):
-        self.minChip = self.chipBase + (self.roundCount * 10)
+    def calcMinChips(self): # I made this better.
+        base_growth_rate = 1.5  # base
+        pfactor = max(1, self.roundCount / 2)  # round exp.
+
+        self.minChip = int(self.chipBase * (base_growth_rate ** self.roundCount) * pfactor)
         return self.minChip
     
     def getPlayerChips(self):
         return self.chipsHeld
 
     def handleCardClick(self):
-        if pygame.mouse.get_pressed()[0]:
-            mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
 
-            for idx, card in enumerate(Card.get_player_cards()): #Same idea as the renderer, i love enumerate
+        if pygame.mouse.get_pressed()[0]:  # Left-click (button 1)
+            for idx, card in enumerate(Card.get_player_cards()):
                 x_offset = 350 + idx * 165
                 y_position = 600
                 card_rect = pygame.Rect(x_offset, y_position, 155, 250)
 
+                # Col check!
                 if card_rect.collidepoint(mouse_pos) and not card.selected:
-                    card.selected = True
-                    Card.held_cards.append(card)
-                    print(f"Card {card.get_val()} of {card.get_suit()} added to held")
+                    if len(Card.held_cards) < 5:
+                        card.selected = True
+                        Card.held_cards.append(card)
+                        print(f"Card {card.get_val()} of {card.get_suit()} added to held")
+                    else:
+                        print("You can only select up to 5 cards.")
+        elif pygame.mouse.get_pressed()[2]:  # Right-click (button 3, not 2...)
+            for idx, card in enumerate(Card.get_player_cards()):
+                x_offset = 350 + idx * 165
+                y_position = 600
+                card_rect = pygame.Rect(x_offset, y_position, 155, 250)
+
+                # Allow deselection regardless of the selection count
+                if card_rect.collidepoint(mouse_pos) and card.selected:
+                    card.selected = False
+                    Card.held_cards.remove(card)
+                    print(f"Card {card.get_val()} of {card.get_suit()} removed from held")
+
+    def play_selected_cards(self):
+        if not Card.held_cards:
+            print("No cards selected to play.")
+            return 0  # No points if no cards are selected.
+        if len(Card.held_cards) != 5:
+            print("Hand will not play! Must play 5 cards!")
+        else:
+            # Move selected cards to player_cards for combination calculation
+            Card.player_cards.extend(Card.held_cards)
+            Card.held_cards.clear()
+
+            # Calculate the combination and points
+            points = Card.get_possible_combination()
+
+            # Clear player cards after playing
+            Card.clear_player()
+
+            print(f"Played selected cards! Combination points: {points}")
+            self.chipsHeld += points
              
 class Card():
     # 200 points = run 
