@@ -7,13 +7,11 @@
     "hands_img_path" : "assets/dealers/chicken_man_hands.png",
 
     "liked_cards" : 
-    [[       1,          1,        1,    2],
-     [    true,          2,        3,   10],
-     ["hearts", "diamonds", "spades", true]],
+    [[3, false, "Clubs"],
+     [3, 13,  false]],
 
      "disliked_cards" :
-    [[         1,         3,        2,        1],
-     [         8,      true,        5,       10],
-     ["diamonds", "clovers",     true, "hearts"]]
+    [[2, false, "Hearts"],
+     [3, 13,  false]]
 
 }
